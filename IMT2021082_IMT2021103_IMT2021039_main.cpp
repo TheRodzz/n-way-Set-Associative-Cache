@@ -30,7 +30,7 @@ bool run(ll addr,vector<vector<block>>& cache,ll indexBits,ll blockOff,ll iter,l
 
     // do a tag match 
     bool tagMatch=false;
-    for(auto y: cache[ind]){
+    for(auto& y: cache[ind]){
         if(y.valid && y.tag==tag) {
             tagMatch=true;
 
