@@ -1,7 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
 #define ll long long int 
-#define sp " "
 
 // structure of a cache block 
 typedef struct block{
@@ -34,6 +33,9 @@ bool run(ll addr,vector<vector<block>>& cache,ll indexBits,ll blockOff,ll iter,l
     for(auto y: cache[ind]){
         if(y.valid && y.tag==tag) {
             tagMatch=true;
+
+            // since there is a tag match, update the block's time to current time
+            y.time=iter;
             break;
         }
     }
@@ -64,13 +66,7 @@ bool run(ll addr,vector<vector<block>>& cache,ll indexBits,ll blockOff,ll iter,l
     // in case of a tag match, we simply update that block's time field to current time
     // indicating that it has been accessed
     else{
-        for(int i=0;i<cache[ind].size();i++){
-            if(cache[ind][i].valid && cache[ind][i].tag==tag){
-                cache[ind][i].time=iter;
-                break;
-            }
-        }
-        //report a hit
+        // report a hit
         return true;
     }
 }
@@ -92,28 +88,25 @@ int main(){
 
     // creating a vector of all the trace files that are used
     vector <ifstream> files(5);
-    files[0].open("gcc.trace");
-    files[1].open("gzip.trace");
-    files[2].open("mcf.trace");
-    files[3].open("swim.trace");
-    files[4].open("twolf.trace");
 
     // vector of file names, this is useful for printing the output
     vector <string> fileNames={"gcc.trace","gzip.trace","mcf.trace","swim.trace","twolf.trace"};
 
+    // populating the files vector with trace files
+    for(int i=0;i<files.size();i++){
+        files[i].open(fileNames[i]);
+    }
+
     // for every file, create a new cache
     // use the run function for every input value
     // and report the hits, misses and hit rate
-    for(int i=0;i<5;i++){
+    for(int i=0;i<files.size();i++){
         cout<<endl;
         ll hit=0,miss=0,iter=0;
-        block t={false,0,0};
-        vector<vector<block>> cache(sets);
-        for(int i=0;i<sets; i++){
-            for(int j=0;j<ways;j++) cache[i].push_back(t);
-        }
+        vector<vector<block>> cache(sets,vector<block>(ways,{false,0,0}));
+
         cout<<"Input file: "<<fileNames[i]<<endl;
-        while(1){
+        while(true){
             char c; ll a,b;
             files[i]>>c>>hex>>a>>b;
             iter++;
@@ -124,7 +117,7 @@ int main(){
         files[i].close();
         cache.clear();
         cout<<"Hit Rate = "<<100.0*(hit)/(iter)<<"%"<<endl;
-        cout<<"Hits = "<<hit<<sp<<sp<<"||"<<sp<<sp<<"Misses = "<<miss<<endl;
+        cout<<"Hits = "<<hit<<" "<<" "<<"||"<<" "<<" "<<"Misses = "<<miss<<endl;
     } 
     
     // printing the final execution time of the entire program
